@@ -51,5 +51,10 @@ namespace Amaguri.WPF.Views
         {
             Close();
         }
+
+        private void Hyperlink_Click(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Process.Start("http://daruyanagi.jp/");
+        }
     }
 }

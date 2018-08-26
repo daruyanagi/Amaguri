@@ -39,10 +39,13 @@
         </Border>
 
         <Border Grid.Row="2" Background="WhiteSmoke">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button x:Name="CancelButton" IsCancel="True" Click="CancelButton_Click">キャンセル</Button>
-                <Button x:Name="SaveButton" IsDefault="True" Click="SaveButton_Click">保存する</Button>
-            </StackPanel>
+            <DockPanel>
+                <Button DockPanel.Dock="Right" x:Name="SaveButton" IsDefault="True" Click="SaveButton_Click">保存する</Button>
+                <Button DockPanel.Dock="Right" x:Name="CancelButton" IsCancel="True" Click="CancelButton_Click">キャンセル</Button>
+                <TextBlock Margin="24,0">
+                    <Hyperlink NavigateUri="http://daruyanagi.jp/" Click="Hyperlink_Click">http://daruyanagi.jp/</Hyperlink>
+                </TextBlock>
+            </DockPanel>
         </Border>
         
         
@@ -55,19 +58,19 @@
                     </TextBlock>
                     <CheckBox IsChecked="{Binding ScaleClipboardImageDataIfExceedWidth, Mode=TwoWay}" IsEnabled="{Binding ElementName=ScaleClipboardImageDataCheckBox, Path=IsChecked}">
                         <TextBlock>
-                         幅が <TextBox Text="{Binding MaxWidth, Mode=TwoWay}"></TextBox> px 以上であれば縮小する
+                         横長画像は幅を <TextBox Text="{Binding MaxWidth, Mode=TwoWay}"></TextBox> px におさめる
                         </TextBlock>
                     </CheckBox>
                     <CheckBox IsChecked="{Binding ScaleClipboardImageDataIfExceedHeight, Mode=TwoWay}" IsEnabled="{Binding ElementName=ScaleClipboardImageDataCheckBox, Path=IsChecked}">
                         <TextBlock>
-                         高さが <TextBox Text="{Binding MaxHeight, Mode=TwoWay}"></TextBox> px 以上であれば縮小する
+                         縦長画像は高さを <TextBox Text="{Binding MaxHeight, Mode=TwoWay}"></TextBox> px におさめる
                         </TextBlock>
                     </CheckBox>
                     <CheckBox IsChecked="{Binding SkipScaleIfShiftKeyDown, Mode=TwoWay}" IsEnabled="{Binding ElementName=ScaleClipboardImageDataCheckBox, Path=IsChecked}">
                         ［Shift］キーを押し下げている間は、縮小処理をスキップする
                     </CheckBox>
                     <CheckBox IsChecked="{Binding UseScaledImageInSavingToDesktop, Mode=TwoWay}" IsEnabled="{Binding ElementName=ScaleClipboardImageDataCheckBox, Path=IsChecked}">
-                        縮小する際、オリジナルのイメージをデスクトップへ保存する
+                        縮小する際、オリジナルサイズのイメージを .original 接尾辞をつけてデスクトップへ保存する
                     </CheckBox>
                 </StackPanel>
             </CheckBox>
