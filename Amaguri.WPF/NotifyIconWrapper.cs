@@ -49,6 +49,13 @@ namespace Amaguri.WPF
             IsSettingsWindowShown = true;
         }
 
+        public void ShowBalloonTip(int timeout, string tipTitle, string tipText, System.Windows.Forms.ToolTipIcon tipIcon)
+        {
+            notifyIcon1.ShowBalloonTip(timeout, tipTitle, tipText, tipIcon);
+        }
+
+        public string Titile => Titile;
+
         // public NotifyIconWrapper(IContainer container)
         // {
         //     container.Add(this);

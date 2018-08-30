@@ -42,7 +42,7 @@ public static class BitmapHelper
             BitmapEncoder enc = new BmpBitmapEncoder();
             enc.Frames.Add(BitmapFrame.Create(bitmapsource));
             enc.Save(outStream);
-            bitmap = new Bitmap(outStream);
+            bitmap = new Bitmap(outStream); // System.OutOfMemoryException
         }
         return bitmap;
     }
