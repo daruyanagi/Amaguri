@@ -71,8 +71,8 @@ namespace Amaguri.WPF
 
             var defaultSettings = WPF.Properties.Settings.Default;
 
-            // ファイルなら画像を展開してクリップボードにコピーして抜ける
-            if (Clipboard.ContainsFileDropList() && defaultSettings.ReplaceClipboardImageFileToImageData)
+            // ファイル（だけ）なら画像を展開してクリップボードにコピーして抜ける
+            if (!Clipboard.ContainsImage() && Clipboard.ContainsFileDropList() && defaultSettings.ReplaceClipboardImageFileToImageData)
             {
                 var path = Clipboard.GetFileDropList().Cast<string>().FirstOrDefault();
 
@@ -102,10 +102,25 @@ namespace Amaguri.WPF
             // 画像以外ははじく
             if (!Clipboard.ContainsImage()) return IntPtr.Zero;
 
-            var source = Clipboard.GetImage();
-            if (source == null) return IntPtr.Zero;
+            BitmapSource source = null;
 
-            if (source.HasAnimatedProperties) return IntPtr.Zero; // 不完全だけど、アニメーション GIF 対策
+            try // でかいファイルを連続して扱おうとするとメモリが足りなくなるかもしれない
+            {
+                source = Clipboard.GetImage();
+            }
+            catch (Exception exception)
+            {
+                notifyIcon.ShowBalloonTip(
+                    3 * 1000,
+                    "Amaguri",
+                    $"{exception.Message}\nPlease try later",
+                    System.Windows.Forms.ToolTipIcon.Error
+                );
+
+                return IntPtr.Zero;
+            }
+
+            if (source == null || source.HasAnimatedProperties) return IntPtr.Zero; // 不完全だけど、アニメーション GIF 対策
 
             if (defaultSettings.ScaleClipboardImageData && !(defaultSettings.SkipScaleIfShiftKeyDown && IsShiftKeyDown()))
             {
@@ -147,14 +162,35 @@ namespace Amaguri.WPF
                     var width = Convert.ToInt32(source.PixelWidth * scale);
                     var height = Convert.ToInt32(source.PixelHeight * scale);
 
-                    using (var original = source.ToBitmap())
-                    using (var scaled = new System.Drawing.Bitmap(width, height))
-                    using (var g = System.Drawing.Graphics.FromImage(scaled))
-                    {
-                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                        g.DrawImage(original, 0, 0, width, height);
+                    System.Drawing.Bitmap original = null;
+                    System.Drawing.Bitmap scaled = null;
 
-                        Clipboard.SetImage(scaled.ToBitmapSource());
+                    try
+                    {
+                        original = source.ToBitmap(); // ここでエラーなるかも
+                        scaled = new System.Drawing.Bitmap(width, height);
+
+                        using (var g = System.Drawing.Graphics.FromImage(scaled))
+                        {
+                            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                            g.DrawImage(original, 0, 0, width, height);
+
+                            Clipboard.SetImage(scaled.ToBitmapSource());
+                        }
+                    }
+                    catch (Exception exception)
+                    {
+                        notifyIcon.ShowBalloonTip(
+                            3 * 1000, 
+                            "Amaguri", 
+                            $"{exception.Message}\nPlease try later", 
+                            System.Windows.Forms.ToolTipIcon.Error
+                        );
+                    }
+                    finally
+                    {
+                        original?.Dispose();
+                        scaled?.Dispose();
                     }
 
                     return IntPtr.Zero;
@@ -164,6 +200,11 @@ namespace Amaguri.WPF
             if (defaultSettings.SaveClipboardImageDataToDesktop)
             {
                 SaveClipboardImageToDesktop(source, "Clipboard-");
+
+                if (defaultSettings.BeepOnSaving)
+                {
+                    System.Media.SystemSounds.Asterisk.Play();
+                }
 
                 return IntPtr.Zero;
             }

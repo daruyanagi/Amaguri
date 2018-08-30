@@ -130,5 +130,17 @@ namespace Amaguri.WPF.Properties {
                 this["UseScaledImageInSavingToDesktop"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool BeepOnSaving {
+            get {
+                return ((bool)(this["BeepOnSaving"]));
+            }
+            set {
+                this["BeepOnSaving"] = value;
+            }
+        }
     }
 }

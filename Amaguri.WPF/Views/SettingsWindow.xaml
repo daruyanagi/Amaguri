@@ -80,6 +80,12 @@
                     </TextBlock>
                 </StackPanel>
             </CheckBox>
+            <CheckBox IsChecked="{Binding BeepOnSaving, Mode=TwoWay}">
+                <StackPanel>
+                    <TextBlock>クリップボードにコピーされたイメージをデスクトップに保存する際、効果音を再生する
+                    </TextBlock>
+                </StackPanel>
+            </CheckBox>
         </StackPanel>
     </Grid>
 </Window>
