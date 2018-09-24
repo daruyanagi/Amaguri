@@ -54,7 +54,16 @@ namespace Amaguri.WPF.Views
 
         private void Hyperlink_Click(object sender, RoutedEventArgs e)
         {
-            System.Diagnostics.Process.Start("http://daruyanagi.jp/");
+            if (!IsRunningAsUwp())
+            {
+                System.Diagnostics.Process.Start("http://daruyanagi.jp/");
+            }
+        }
+
+        public bool IsRunningAsUwp()
+        {
+            DesktopBridge.Helpers helpers = new DesktopBridge.Helpers();
+            return helpers.IsRunningAsUwp();
         }
     }
 }
