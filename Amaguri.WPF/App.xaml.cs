@@ -54,6 +54,8 @@ namespace Amaguri.WPF
             };
 
             MonitorWindow.Show();
+
+            notifyIcon.ShowBalloonTip(3 * 1000, "Amaguri", "起動しました", System.Windows.Forms.ToolTipIcon.Info);
         }
 
         protected override void OnExit(ExitEventArgs e)
