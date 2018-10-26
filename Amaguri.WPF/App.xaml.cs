@@ -95,12 +95,7 @@ namespace Amaguri.WPF
             }
             catch (Exception exception)
             {
-                notifyIcon.ShowBalloonTip(
-                    3 * 1000,
-                    "Amaguri",
-                    $"{exception.Message}\nPlease try later",
-                    System.Windows.Forms.ToolTipIcon.Error
-                );
+                ShowNotification($"{exception.Message}\nPlease try later");
 
                 return IntPtr.Zero;
             }
@@ -165,12 +160,7 @@ namespace Amaguri.WPF
                     }
                     catch (Exception exception)
                     {
-                        notifyIcon.ShowBalloonTip(
-                            3 * 1000,
-                            "Amaguri",
-                            $"{exception.Message}\nPlease try later",
-                            System.Windows.Forms.ToolTipIcon.Error
-                        );
+                        ShowNotification($"{exception.Message}\nPlease try later");
                     }
                     finally
                     {
@@ -195,6 +185,15 @@ namespace Amaguri.WPF
             }
 
             return IntPtr.Zero;
+        }
+
+        private void ShowNotification(string message)
+        {
+            notifyIcon.ShowBalloonTip(
+                3 * 1000,
+                "Amaguri", message,
+                System.Windows.Forms.ToolTipIcon.Error
+            );
         }
 
         private static void SaveClipboardImageToDesktop(BitmapSource source, string prefix = "", string suffix = "")
