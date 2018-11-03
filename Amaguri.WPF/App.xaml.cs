@@ -73,51 +73,29 @@ namespace Amaguri.WPF
 
             var defaultSettings = WPF.Properties.Settings.Default;
 
-            // ファイル（だけ）なら画像を展開してクリップボードにコピーして抜ける
-            if (!Clipboard.ContainsImage() && Clipboard.ContainsFileDropList() && defaultSettings.ReplaceClipboardImageFileToImageData)
-            {
-                var path = Clipboard.GetFileDropList().Cast<string>().FirstOrDefault();
-
-                var bitmap = new BitmapImage();
-
-                try
-                {
-                    using (var stream = System.IO.File.OpenRead(path))
-                    {
-                        bitmap.BeginInit();
-                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                        bitmap.StreamSource = stream;
-                        bitmap.EndInit();
-                    }
-
-                    Clipboard.SetImage(bitmap);
-
-                    return IntPtr.Zero;
-                }
-                catch
-                {
-                    // 例外が発生したら処理を抜ける
-                    return IntPtr.Zero;
-                }
-            }
-
-            // 画像以外ははじく
-            if (!Clipboard.ContainsImage()) return IntPtr.Zero;
-
             BitmapSource source = null;
 
-            try // でかいファイルを連続して扱おうとするとメモリが足りなくなるかもしれない
+            try
             {
-                source = Clipboard.GetImage();
+                if (Clipboard.ContainsImage())
+                {
+                    source = Clipboard.GetImage();
+                }
+                else if (Clipboard.ContainsFileDropList() && defaultSettings.ReplaceClipboardImageFileToImageData)
+                {
+                    var path = Clipboard.GetFileDropList().Cast<string>().FirstOrDefault();
+                    source = new BitmapImage(new Uri(path));
+                }
+                else
+                {
+                    return IntPtr.Zero;
+                }
+
+                source.Freeze(); // メモリリーク対策らしい
             }
             catch (Exception exception)
             {
-                notifyIcon.ShowBalloonTip(
-                    3 * 1000,
-                    "Amaguri",
-                    $"{exception.Message}\nPlease try later",
-                    System.Windows.Forms.ToolTipIcon.Error
-                );
+                ShowNotification($"{exception.Message}\nPlease try later");
 
                 return IntPtr.Zero;
             }
@@ -136,7 +114,7 @@ namespace Amaguri.WPF
                     {
                         if (source.PixelHeight > source.PixelWidth)
                         {
-                            scale = (double) defaultSettings.MaxHeight / source.PixelHeight;
+                            scale = (double)defaultSettings.MaxHeight / source.PixelHeight;
                         }
                         else
                         {
@@ -182,12 +160,7 @@ namespace Amaguri.WPF
                     }
                     catch (Exception exception)
                     {
-                        notifyIcon.ShowBalloonTip(
-                            3 * 1000, 
-                            "Amaguri", 
-                            $"{exception.Message}\nPlease try later", 
-                            System.Windows.Forms.ToolTipIcon.Error
-                        );
+                        ShowNotification($"{exception.Message}\nPlease try later");
                     }
                     finally
                     {
@@ -212,6 +185,15 @@ namespace Amaguri.WPF
             }
 
             return IntPtr.Zero;
+        }
+
+        private void ShowNotification(string message)
+        {
+            notifyIcon.ShowBalloonTip(
+                3 * 1000,
+                "Amaguri", message,
+                System.Windows.Forms.ToolTipIcon.Error
+            );
         }
 
         private static void SaveClipboardImageToDesktop(BitmapSource source, string prefix = "", string suffix = "")
