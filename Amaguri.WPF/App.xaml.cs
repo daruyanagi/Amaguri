@@ -84,7 +84,15 @@ namespace Amaguri.WPF
                 else if (Clipboard.ContainsFileDropList() && defaultSettings.ReplaceClipboardImageFileToImageData)
                 {
                     var path = Clipboard.GetFileDropList().Cast<string>().FirstOrDefault();
-                    source = new BitmapImage(new Uri(path));
+
+                    try // 画像ファイルかどうかチェックして抜ける
+                    {
+                        source = new BitmapImage(new Uri(path));
+                    }
+                    catch
+                    {
+                        return IntPtr.Zero;
+                    }
                 }
                 else
                 {
